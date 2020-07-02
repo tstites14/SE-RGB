@@ -41,8 +41,22 @@ namespace IngameScript
 
             foreach (var light in Lights)
             {
-                light.Color = GetNextColor(light);
-                Echo($"Color: {light.Color}");
+                string cd = light.CustomData.Split(' ')[1];
+                char cdMode = cd.ToCharArray()[0];
+
+                Mode = GetMode(cdMode);
+                Echo(Mode.ToString());
+
+                if (Mode == Modes.Pulse)
+                {
+                    light.Color = GetNextColor(light);
+                    Echo($"Color: {light.Color}");
+                }
+                else if (Mode == Modes.Wave)
+                {
+                    int cdOrder = int.Parse(cd.Remove(0, 1));
+                }
+
             }
         }
 
@@ -52,13 +66,13 @@ namespace IngameScript
             Wave
         }
 
-        public Modes GetMode(string customData)
+        public Modes GetMode(char customData)
         {
             switch (customData)
             {
-                case "W":
+                case 'W':
                     return Modes.Wave;
-                case "P":
+                case 'P':
                     return Modes.Pulse;
                 default:
                     return Modes.Pulse;
