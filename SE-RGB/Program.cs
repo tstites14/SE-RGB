@@ -22,6 +22,7 @@ namespace IngameScript
     partial class Program : MyGridProgram
     {
         List<IMyInteriorLight> Lights;
+        Modes Mode;
 
         public Program()
         {
@@ -31,7 +32,7 @@ namespace IngameScript
             GridTerminalSystem.GetBlocksOfType(Lights);
 
             //Filter Lights so only lights that specifically need RGB are part of the list
-            Lights = Lights.Where(item => item.CustomData == "RGB").ToList();
+            Lights = Lights.Where(item => item.CustomData.Contains("RGB")).ToList();
         }
 
         public void Main(string argument, UpdateType updateSource)
@@ -42,6 +43,25 @@ namespace IngameScript
             {
                 light.Color = GetNextColor(light);
                 Echo($"Color: {light.Color}");
+            }
+        }
+
+        public enum Modes
+        {
+            Pulse,
+            Wave
+        }
+
+        public Modes GetMode(string customData)
+        {
+            switch (customData)
+            {
+                case "W":
+                    return Modes.Wave;
+                case "P":
+                    return Modes.Pulse;
+                default:
+                    return Modes.Pulse;
             }
         }
 
