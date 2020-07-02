@@ -1,8 +1,6 @@
 # SE-RGB
 A Space Engineers script (developed with the Visual Studio 2019 plugin MDK) to simulate modern RGB lighting effects.
 
-An MDK-SE project to be used in Space Engineers to simulate RGB lighting.
-
 Installation:
 - Copy Program.cs to C:\Users\USERNAME\AppData\Roaming\SpaceEngineers\IngameScripts\local.
 - Open a Programmble Block in Space Engineers.
