@@ -22,6 +22,9 @@ namespace IngameScript
     partial class Program : MyGridProgram
     {
         List<IMyInteriorLight> Lights;
+        Modes Mode;
+
+        bool OffsetRun = true;
 
         public Program()
         {
@@ -31,17 +34,77 @@ namespace IngameScript
             GridTerminalSystem.GetBlocksOfType(Lights);
 
             //Filter Lights so only lights that specifically need RGB are part of the list
-            Lights = Lights.Where(item => item.CustomData == "RGB").ToList();
+            Lights = Lights.Where(item => item.CustomData.Contains("RGB")).ToList();
         }
 
         public void Main(string argument, UpdateType updateSource)
         {
             Echo($"Number of lights: {Lights.Count}");
 
+            //Sort lights by the order specified in the light's custom data
+            Lights = Lights.OrderBy(key =>
+            {
+                string cd = key.CustomData.Split(' ')[1];
+                int cdOrder = int.Parse(cd.Remove(0, 1));
+
+                return cdOrder;
+            }).ToList();
+
             foreach (var light in Lights)
             {
-                light.Color = GetNextColor(light);
-                Echo($"Color: {light.Color}");
+                string cd = light.CustomData.Split(' ')[1];
+                char cdMode = cd.ToCharArray()[0];
+                int cdOrder = int.Parse(cd.Remove(0, 1));
+
+                Mode = GetMode(cdMode);
+                Echo("Mode: " + Mode.ToString());
+
+                if (Mode == Modes.Pulse)
+                {
+                    light.Color = GetNextColor(light);
+                    Echo($"Color: {light.Color}");
+                }
+                else if (Mode == Modes.Wave)
+                {
+                    float offset = (0.025f * (cdOrder - 1));
+                    if (offset < 0)
+                    {
+                        offset = 0;
+                    }
+                    Echo($"Offset: {offset}");
+
+                    if (OffsetRun)
+                    {
+                        light.Color = GetNextColor(light, offset);
+                        Echo($"Color: {light.Color}");
+                    } 
+                    else
+                    {
+                        light.Color = GetNextColor(light);
+                        Echo($"Color: {light.Color}");
+                    }
+                }
+            }
+
+            OffsetRun = false;
+        }
+
+        public enum Modes
+        {
+            Pulse,
+            Wave
+        }
+
+        public Modes GetMode(char customData)
+        {
+            switch (customData)
+            {
+                case 'W':
+                    return Modes.Wave;
+                case 'P':
+                    return Modes.Pulse;
+                default:
+                    return Modes.Pulse;
             }
         }
 
@@ -50,6 +113,28 @@ namespace IngameScript
             Color currentColor = currentLight.Color;
             Vector3 hsv = currentColor.ColorToHSVDX11();
 
+            hsv.Y = 1;
+            hsv.Z = 1;
+
+            if (hsv.X < 1)
+            {
+                hsv.X += 0.005f;
+            }
+            else
+            {
+                hsv.X = 0;
+            }
+
+            Echo(hsv.ToString());
+            return ColorExtensions.HSVtoColor(hsv);
+        }
+
+        public Color GetNextColor(IMyInteriorLight currentLight, float offset)
+        {
+            Color currentColor = currentLight.Color;
+            Vector3 hsv = currentColor.ColorToHSVDX11();
+
+            hsv.X += offset;
             hsv.Y = 1;
             hsv.Z = 1;
 
