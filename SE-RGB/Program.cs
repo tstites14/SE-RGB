@@ -24,6 +24,8 @@ namespace IngameScript
         List<IMyInteriorLight> Lights;
         Modes Mode;
 
+        bool OffsetRun = true;
+
         public Program()
         {
             Runtime.UpdateFrequency = UpdateFrequency.Update1;
@@ -64,10 +66,27 @@ namespace IngameScript
                 }
                 else if (Mode == Modes.Wave)
                 {
-                    float offset = 0.08f * cdOrder - 1;
-                }
+                    float offset = (0.025f * (cdOrder - 1));
+                    if (offset < 0)
+                    {
+                        offset = 0;
+                    }
+                    Echo($"Offset: {offset}");
 
+                    if (OffsetRun)
+                    {
+                        light.Color = GetNextColor(light, offset);
+                        Echo($"Color: {light.Color}");
+                    } 
+                    else
+                    {
+                        light.Color = GetNextColor(light);
+                        Echo($"Color: {light.Color}");
+                    }
+                }
             }
+
+            OffsetRun = false;
         }
 
         public enum Modes
