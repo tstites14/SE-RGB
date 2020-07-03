@@ -64,7 +64,7 @@ namespace IngameScript
                 }
                 else if (Mode == Modes.Wave)
                 {
-
+                    float offset = 0.08f * cdOrder - 1;
                 }
 
             }
@@ -94,6 +94,28 @@ namespace IngameScript
             Color currentColor = currentLight.Color;
             Vector3 hsv = currentColor.ColorToHSVDX11();
 
+            hsv.Y = 1;
+            hsv.Z = 1;
+
+            if (hsv.X < 1)
+            {
+                hsv.X += 0.005f;
+            }
+            else
+            {
+                hsv.X = 0;
+            }
+
+            Echo(hsv.ToString());
+            return ColorExtensions.HSVtoColor(hsv);
+        }
+
+        public Color GetNextColor(IMyInteriorLight currentLight, float offset)
+        {
+            Color currentColor = currentLight.Color;
+            Vector3 hsv = currentColor.ColorToHSVDX11();
+
+            hsv.X += offset;
             hsv.Y = 1;
             hsv.Z = 1;
 
