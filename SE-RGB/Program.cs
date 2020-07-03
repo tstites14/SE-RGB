@@ -39,13 +39,23 @@ namespace IngameScript
         {
             Echo($"Number of lights: {Lights.Count}");
 
+            //Sort lights by the order specified in the light's custom data
+            Lights = Lights.OrderBy(key =>
+            {
+                string cd = key.CustomData.Split(' ')[1];
+                int cdOrder = int.Parse(cd.Remove(0, 1));
+
+                return cdOrder;
+            }).ToList();
+
             foreach (var light in Lights)
             {
                 string cd = light.CustomData.Split(' ')[1];
                 char cdMode = cd.ToCharArray()[0];
+                int cdOrder = int.Parse(cd.Remove(0, 1));
 
                 Mode = GetMode(cdMode);
-                Echo(Mode.ToString());
+                Echo("Mode: " + Mode.ToString());
 
                 if (Mode == Modes.Pulse)
                 {
@@ -54,7 +64,7 @@ namespace IngameScript
                 }
                 else if (Mode == Modes.Wave)
                 {
-                    int cdOrder = int.Parse(cd.Remove(0, 1));
+
                 }
 
             }
